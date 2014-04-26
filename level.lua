@@ -1,15 +1,19 @@
-local Tile = require "tile"
+local Tile     = require "tile"
+local Monster  = require "monsters.monster"
 
 local Level = {}
 
 local LevelMethods  = {}
 local LevelMt       = {__index  = LevelMethods}
 
-function LevelMethods:exists(x,y)
+function LevelMethods:getTile(x,y)
   return self.rows[y] and self.rows[y][x]
 end
 
-LevelMethods.getTile = LevelMethods.exists
+function LevelMethods:exists(x,y)
+  local tile = self:getTile(x,y)
+  return tile and not tile.digged
+end
 
 function LevelMethods:isOutOfBounds(x, y)
   return x < 1 or y < 1 or x > self.width or y > self.height
@@ -20,7 +24,7 @@ function LevelMethods:isSurface(x,y)
 end
 
 function LevelMethods:isDigged(x,y)
-  return not self:isOutOfBounds(x,y) and not self:exists(x,y)
+  return not self:isOutOfBounds(x,y) and self:getTile(x,y).digged
 end
 
 function LevelMethods:isDiggable(x,y)
@@ -40,8 +44,7 @@ function LevelMethods:draw(cl, ct, cw, ch)
   love.graphics.setColor(255,255,255)
   for y=minY, maxY do
     for x=minX, maxX do
-      local tile = self:getTile(x,y)
-      if tile then tile:draw() end
+      self:getTile(x,y):draw()
     end
   end
 end
@@ -52,7 +55,17 @@ function LevelMethods:getDimensions()
 end
 
 function LevelMethods:digg(x,y)
-  self.rows[y][x] = nil
+  local tile = self:getTile(x,y)
+  if tile then
+    self:addMonster(Monster.newFromTile(tile))
+    tile:digg()
+  end
+end
+
+function LevelMethods:addMonster(monster)
+  if monster then
+    self:getTile(monster.x, monster.y).monsters[monster] = true
+  end
 end
 
 Level.newFromString = function(str)
@@ -65,7 +78,7 @@ Level.newFromString = function(str)
     instance.rows[height] = {}
     x = 1
     for char in line:gmatch(".") do
-      instance.rows[height][x] = Tile.newFromChar(x, height, char)
+      instance.rows[height][x] = Tile.newFromChar(instance, x, height, char)
       x = x + 1
     end
   end
@@ -83,7 +96,7 @@ Level.new = function(width, height)
   for y=1, height do
     instance.rows[y] = {}
     for x=1, width do
-      instance.rows[y][x] = Tile.new(x,y)
+      instance.rows[y][x] = Tile.new(instance, x,y)
     end
   end
 
