@@ -12,11 +12,11 @@ function TileMethods:draw()
     end
   else
     local l,t = Tile.toWorld(self.x, self.y)
-    if self.nutrient == 0 then
+    if self.food == 0 then
       love.graphics.setColor(100,100,100)
     else
-      local r = 50 + math.floor((self.nutrient) / 100 * 20)
-      local g = 55 + math.floor((self.nutrient / 100) * 200)
+      local r = 50 + math.floor((self.food) / 100 * 20)
+      local g = 55 + math.floor((self.food / 100) * 200)
       local b = r
       love.graphics.setColor(r,g,b)
     end
@@ -39,11 +39,11 @@ function TileMethods:drawDiggable()
 end
 
 function TileMethods:canSpawnMonster()
-  return self.nutrient ~= 0 or self.mana ~= 0
+  return self.food ~= 0 or self.mana ~= 0
 end
 
 function TileMethods:digg()
-  self.nutrient = 0
+  self.food = 0
   self.mana = 0
   self.digged = true
 end
@@ -71,12 +71,12 @@ Tile.toWorld = function(tx, ty)
   return (tx - 1) * TILE_SIZE, (ty - 1) * TILE_SIZE
 end
 
-Tile.new = function(map, x,y,nutrient,mana,digged)
+Tile.new = function(map, x,y,food,mana,digged)
   return setmetatable({
     map     = map,
     x         = x,
     y         = y,
-    nutrient  = nutrient or 0,
+    food  = food or 0,
     mana      = mana or 0,
     digged    = digged,
     monsters  = {}
@@ -85,11 +85,11 @@ end
 
 local charValues = {
   [' '] = {digged = true},
-  ['.'] = {nutrient = 0,  mana = 0},
-  ['~'] = {nutrient = 25, mana = 0},
-  ['!'] = {nutrient = 50, mana = 0},
-  ['@'] = {nutrient = 75, mana = 0},
-  ['#'] = {nutrient =100, mana = 0}
+  ['.'] = {food = 0,  mana = 0},
+  ['~'] = {food = 10, mana = 0},
+  ['!'] = {food = 33, mana = 0},
+  ['@'] = {food = 66, mana = 0},
+  ['#'] = {food =100, mana = 0}
 }
 
 Tile.newFromChar = function(map, x,y, char)
@@ -97,7 +97,7 @@ Tile.newFromChar = function(map, x,y, char)
 
   assert(values, "Invalid char: " .. char)
 
-  return Tile.new(map, x,y, values.nutrient, values.mana, values.digged)
+  return Tile.new(map, x,y, values.food, values.mana, values.digged)
 end
 
 

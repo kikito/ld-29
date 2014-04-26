@@ -66,13 +66,14 @@ function Monster:getTile()
   return self.map:getTile(self.x, self.y)
 end
 
-function Monster:initialize(tile)
-  self.map=tile.map
-  self.x=tile.x
-  self.y=tile.y
-  self.nutrient=tile.nutrient
-  self.mana=tile.mana
-  self.speed=1
+function Monster:initialize(map, x, y, food, mana, speed, hp)
+  self.map=map
+  self.x=x
+  self.y=y
+  self.food=food
+  self.mana=mana
+  self.speed=speed or 1
+  self.hp=hp or 10
   self:gotoState('Idle')
 end
 
@@ -103,15 +104,12 @@ function Idle:update(dt)
   end
 end
 
-function Idle:getColor()
-  return 0,255,0
-end
-
 function Idle:getWorldLeftTop()
   local l,t = Monster.getWorldLeftTop(self)
   local dx, dy = self:getDirectionDeltas()
   local speed, accum = self.speed, self.moveAccumulator
-  return l + dx * self.speed * self.moveAccumulator * Tile.TILE_SIZE,
-         t + dy * self.speed * self.moveAccumulator * Tile.TILE_SIZE
+  return l + dx * self.moveAccumulator * Tile.TILE_SIZE,
+         t + dy * self.moveAccumulator * Tile.TILE_SIZE
 end
+
 return Monster

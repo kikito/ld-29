@@ -1,5 +1,5 @@
 local Tile     = require "tile"
-local Monster  = require "monsters.monster"
+local factory  = require "monster_factory"
 
 local Map = {}
 
@@ -59,9 +59,8 @@ end
 function MapMethods:digg(x,y)
   local tile = self:getTile(x,y)
   if tile then
-    if tile:canSpawnMonster() then
-      self:addMonster(Monster:new(tile))
-    end
+    local monster = factory.create(tile)
+    self:addMonster(monster)
     tile:digg()
   end
 end
