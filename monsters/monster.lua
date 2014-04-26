@@ -11,14 +11,14 @@ function MonsterMethods:draw()
   love.graphics.circle('fill', x, y, 10)
 end
 
-Monster.new = function(level,x,y,nutrient,mana)
-  return setmetatable({level=level,x=x,y=y,nutrient=nutrient,mana=mana},MonsterMt)
+Monster.new = function(map,x,y,nutrient,mana)
+  return setmetatable({map=map,x=x,y=y,nutrient=nutrient,mana=mana},MonsterMt)
 end
 
 Monster.newFromTile = function(tile)
   if tile.mana == 0 and tile.nutrient == 0 then return nil end
   return Monster.new(
-    tile.level,
+    tile.map,
     tile.x,
     tile.y,
     tile.nutrient,

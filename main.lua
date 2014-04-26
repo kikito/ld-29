@@ -1,16 +1,16 @@
-local Level  = require 'level'
+local Map  = require 'map'
 local Tile   = require 'tile'
 local gamera = require 'lib.gamera'
 
-local level
+local map
 local camera
 local scroll_speed = 200 -- pixels / second
 local scroll_margin = 60 -- pixel
 local active_tile
 
 function love.load()
-  level  = Level.newFromFile('levels/level1.txt')
-  camera = gamera.new(0,0, level:getDimensions())
+  map  = Map.newFromFile('maps/map1.txt')
+  camera = gamera.new(0,0, map:getDimensions())
 end
 
 function love.update(dt)
@@ -30,7 +30,7 @@ function love.update(dt)
 
   local px, py = camera:toWorld(mx, my)
 
-  active_tile = level:getTile(Tile.toTile(px, py))
+  active_tile = map:getTile(Tile.toTile(px, py))
 
   camera:setPosition(cx + dx * scroll_speed * dt,
                      cy + dy * scroll_speed * dt)
@@ -39,9 +39,9 @@ end
 
 function love.draw()
   camera:draw(function(l,t,w,h)
-    level:draw(l,t,w,h)
+    map:draw(l,t,w,h)
     if active_tile then
-      if level:isDiggable(active_tile.x, active_tile.y) then
+      if map:isDiggable(active_tile.x, active_tile.y) then
         active_tile:drawDiggable()
       else
         active_tile:drawActive()
@@ -52,8 +52,8 @@ end
 
 function love.mousepressed(x, y, button)
   if button == "l" then
-    if active_tile and level:isDiggable(active_tile.x, active_tile.y) then
-      level:digg(active_tile.x, active_tile.y)
+    if active_tile and map:isDiggable(active_tile.x, active_tile.y) then
+      map:digg(active_tile.x, active_tile.y)
       active_tile = nil
     end
   elseif button == "r" then

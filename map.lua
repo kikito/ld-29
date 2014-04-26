@@ -1,33 +1,33 @@
 local Tile     = require "tile"
 local Monster  = require "monsters.monster"
 
-local Level = {}
+local Map = {}
 
-local LevelMethods  = {}
-local LevelMt       = {__index  = LevelMethods}
+local MapMethods  = {}
+local MapMt       = {__index  = MapMethods}
 
-function LevelMethods:getTile(x,y)
+function MapMethods:getTile(x,y)
   return self.rows[y] and self.rows[y][x]
 end
 
-function LevelMethods:exists(x,y)
+function MapMethods:exists(x,y)
   local tile = self:getTile(x,y)
   return tile and not tile.digged
 end
 
-function LevelMethods:isOutOfBounds(x, y)
+function MapMethods:isOutOfBounds(x, y)
   return x < 1 or y < 1 or x > self.width or y > self.height
 end
 
-function LevelMethods:isSurface(x,y)
+function MapMethods:isSurface(x,y)
   return y == 1
 end
 
-function LevelMethods:isDigged(x,y)
+function MapMethods:isDigged(x,y)
   return not self:isOutOfBounds(x,y) and self:getTile(x,y).digged
 end
 
-function LevelMethods:isDiggable(x,y)
+function MapMethods:isDiggable(x,y)
   return self:exists(x, y) and
          not self:isSurface(x,y) and
          ( self:isDigged(x,  y-1) or
@@ -36,7 +36,7 @@ function LevelMethods:isDiggable(x,y)
            self:isDigged(x+1,  y) )
 end
 
-function LevelMethods:draw(cl, ct, cw, ch)
+function MapMethods:draw(cl, ct, cw, ch)
   local floor, min, max = math.floor, math.min, math.max
   local minX, minY = Tile.toTile(cl, ct)
   local maxX, maxY = Tile.toTile(cl+cw, ct+ch)
@@ -49,12 +49,12 @@ function LevelMethods:draw(cl, ct, cw, ch)
   end
 end
 
-function LevelMethods:getDimensions()
+function MapMethods:getDimensions()
   return self.width * Tile.TILE_SIZE,
          self.height * Tile.TILE_SIZE
 end
 
-function LevelMethods:digg(x,y)
+function MapMethods:digg(x,y)
   local tile = self:getTile(x,y)
   if tile then
     self:addMonster(Monster.newFromTile(tile))
@@ -62,13 +62,13 @@ function LevelMethods:digg(x,y)
   end
 end
 
-function LevelMethods:addMonster(monster)
+function MapMethods:addMonster(monster)
   if monster then
     self:getTile(monster.x, monster.y).monsters[monster] = true
   end
 end
 
-Level.newFromString = function(str)
+Map.newFromString = function(str)
   local width = #(str:match("[^\n]+"))
   local instance = { width = width, rows = {} }
   local height = 0
@@ -83,15 +83,15 @@ Level.newFromString = function(str)
     end
   end
   instance.height = height
-  return setmetatable(instance, LevelMt)
+  return setmetatable(instance, MapMt)
 end
 
-Level.newFromFile = function(path)
-  return Level.newFromString(love.filesystem.read(path))
+Map.newFromFile = function(path)
+  return Map.newFromString(love.filesystem.read(path))
 end
 
 
-Level.new = function(width, height)
+Map.new = function(width, height)
   local instance = { width = width, height = height, rows = {} }
   for y=1, height do
     instance.rows[y] = {}
@@ -100,7 +100,7 @@ Level.new = function(width, height)
     end
   end
 
-  setmetatable(instance, LevelMt)
+  setmetatable(instance, MapMt)
   instance:digg(10,1)
   instance:digg(10,2)
   instance:digg(10,3)
@@ -111,4 +111,4 @@ Level.new = function(width, height)
   return instance
 end
 
-return Level
+return Map

@@ -49,9 +49,9 @@ Tile.toWorld = function(tx, ty)
   return (tx - 1) * TILE_SIZE, (ty - 1) * TILE_SIZE
 end
 
-Tile.new = function(level, x,y,nutrient,mana,digged)
+Tile.new = function(map, x,y,nutrient,mana,digged)
   return setmetatable({
-    level     = level,
+    map     = map,
     x         = x,
     y         = y,
     nutrient  = nutrient or 0,
@@ -68,12 +68,12 @@ local charValues = {
   ['!'] = {nutrient = 50, mana = 0}
 }
 
-Tile.newFromChar = function(level, x,y, char)
+Tile.newFromChar = function(map, x,y, char)
   local values = charValues[char]
 
   assert(values, "Invalid char: " .. char)
 
-  return Tile.new(level, x,y, values.nutrient, values.mana, values.digged)
+  return Tile.new(map, x,y, values.nutrient, values.mana, values.digged)
 end
 
 
