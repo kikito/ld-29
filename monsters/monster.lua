@@ -1,9 +1,10 @@
-local class = require 'lib.middleclass'
-local util  = require 'lib.util'
+local class    = require 'lib.middleclass'
+local Stateful = require 'lib.stateful'
+local util     = require 'lib.util'
 
 local Tile = require 'tile'
 
-local Monster = class('Monster')
+local Monster = class('Monster'):include(Stateful)
 
 local directions = {
   up     = {dx=0, dy=-1},
@@ -13,31 +14,22 @@ local directions = {
 }
 local directionNames = {'up', 'down', 'left', 'right'}
 
+function Monster:getColor()
+  return 255, 255, 255
+end
+
 function Monster:draw()
-  love.graphics.setColor(255,255,255)
+  love.graphics.setColor(self:getColor())
   local l,t = Tile.toWorld(self.x, self.y)
   local x,y = l + Tile.TILE_SIZE / 2, t + Tile.TILE_SIZE / 2
   love.graphics.circle('fill', x, y, 10)
 end
 
 function Monster:update(dt)
-  self.speedAccumulator = self.speedAccumulator + self.speed * dt
-
-  if self.speedAccumulator >= 1 then
-    self.speedAccumulator = self.speedAccumulator - 1
-    local tile = self:getNextTile(self.direction)
-    if tile and tile:isTraversableBy(self) then
-      self.x = tile.x
-      self.y = tile.y
-    else
-      self:chooseRandomAvailableDirection()
-    end
-  end
 end
 
-function Monster:chooseRandomAvailableDirection()
+function Monster:getAvailableDirections()
   local candidates = {up=1,down=1,left=1,right=1}
-  candidates[self.direction] = nil
   for i = 1, #directionNames do
     local directionName = directionNames[i]
     local tile = self:getNextTile(directionName)
@@ -45,7 +37,12 @@ function Monster:chooseRandomAvailableDirection()
       candidates[directionName] = nil
     end
   end
+  return candidates
+end
 
+function Monster:chooseRandomAvailableDirection()
+  local candidates = self:getAvailableDirections()
+  candidates[self.direction] = nil
   local keys, len = util.get_keys(candidates)
   self.direction = keys[math.random(len)]
 end
@@ -62,8 +59,34 @@ function Monster:initialize(tile)
   self.nutrient=tile.nutrient
   self.mana=tile.mana
   self.speed=1
-  self.speedAccumulator=0
-  self.direction = directionNames[math.random(#directionNames)]
+  self:gotoState('Idle')
+end
+
+
+-- Idle state
+local Idle = Monster:addState('Idle')
+
+function Idle:enteredState(dt)
+  self.speedAccumulator = 0
+  self.direction        = directionNames[math.random(#directionNames)]
+end
+
+function Idle:update(dt)
+  self.speedAccumulator = self.speedAccumulator + self.speed * dt
+
+  if self.speedAccumulator >= 1 then
+    self.speedAccumulator = self.speedAccumulator - 1
+    local tile = self:getNextTile(self.direction)
+    if tile and tile:isTraversableBy(self) then
+      self.x = tile.x
+      self.y = tile.y
+    else
+      self:chooseRandomAvailableDirection()
+    end
+  end
+end
+function Idle:getColor()
+  return 0,255,0
 end
 
 return Monster
