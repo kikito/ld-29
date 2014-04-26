@@ -9,7 +9,7 @@ local scroll_margin = 60 -- pixel
 local active_tile
 
 function love.load()
-  level  = Level.new(50, 50)
+  level  = Level.newFromFile('levels/level1.txt')
   camera = gamera.new(0,0, level:getDimensions())
 end
 

@@ -55,6 +55,29 @@ function LevelMethods:digg(x,y)
   self.rows[y][x] = nil
 end
 
+Level.newFromString = function(str)
+  local width = #(str:match("[^\n]+"))
+  local instance = { width = width, rows = {} }
+  local height = 0
+  local x
+  for line in str:gmatch("[^\n]+") do
+    height = height + 1
+    instance.rows[height] = {}
+    x = 1
+    for char in line:gmatch(".") do
+      instance.rows[height][x] = Tile.newFromChar(x, height, char)
+      x = x + 1
+    end
+  end
+  instance.height = height
+  return setmetatable(instance, LevelMt)
+end
+
+Level.newFromFile = function(path)
+  return Level.newFromString(love.filesystem.read(path))
+end
+
+
 Level.new = function(width, height)
   local instance = { width = width, height = height, rows = {} }
   for y=1, height do
@@ -73,7 +96,6 @@ Level.new = function(width, height)
   instance:digg(13,3)
 
   return instance
-
 end
 
 return Level
