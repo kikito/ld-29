@@ -40,6 +40,8 @@ function MapMethods:draw(cl, ct, cw, ch)
   local floor, min, max = math.floor, math.min, math.max
   local minX, minY = Tile.toTile(cl, ct)
   local maxX, maxY = Tile.toTile(cl+cw, ct+ch)
+  minX, minY = max(minX, 0), max(minY, 0)
+  maxX, maxY = min(maxX, self.width), min(maxY, self.height)
 
   love.graphics.setColor(255,255,255)
   for y=minY, maxY do

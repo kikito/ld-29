@@ -12,9 +12,15 @@ function TileMethods:draw()
     end
   else
     local l,t = Tile.toWorld(self.x, self.y)
-    local g = math.floor((self.nutrient / 100) * 150)
-    love.graphics.setColor(100,g+100,100)
-    love.graphics.rectangle("fill", l+1, t+1, TILE_SIZE-2, TILE_SIZE-2)
+    if self.nutrient == 0 then
+      love.graphics.setColor(100,100,100)
+    else
+      local r = 50 + math.floor((self.nutrient) / 100 * 20)
+      local g = 55 + math.floor((self.nutrient / 100) * 200)
+      local b = r
+      love.graphics.setColor(r,g,b)
+    end
+    love.graphics.rectangle("fill", l, t, TILE_SIZE, TILE_SIZE)
   end
 end
 
@@ -64,8 +70,10 @@ end
 local charValues = {
   [' '] = {digged = true},
   ['.'] = {nutrient = 0,  mana = 0},
-  ['~'] = {nutrient = 10, mana = 0},
-  ['!'] = {nutrient = 50, mana = 0}
+  ['~'] = {nutrient = 25, mana = 0},
+  ['!'] = {nutrient = 50, mana = 0},
+  ['@'] = {nutrient = 75, mana = 0},
+  ['#'] = {nutrient =100, mana = 0}
 }
 
 Tile.newFromChar = function(map, x,y, char)

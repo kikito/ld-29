@@ -6,6 +6,7 @@ local map
 local camera
 local scroll_speed = 200 -- pixels / second
 local scroll_margin = 60 -- pixel
+local scale_factor = 0
 local active_tile
 
 function love.load()
@@ -13,7 +14,7 @@ function love.load()
   camera = gamera.new(0,0, map:getDimensions())
 end
 
-function love.update(dt)
+local function updateCamera(dt)
   local sw, sh = love.graphics.getDimensions()
   local mx, my = love.mouse.getPosition()
   local dx, dy = 0, 0
@@ -26,15 +27,23 @@ function love.update(dt)
   elseif my >= sh - scroll_margin then dy = 1
   end
 
-  local cx, cy = camera:getPosition()
+  camera:setScale(math.min(camera:getScale() + scale_factor * dt, 2))
+  local scale = camera:getScale()
+  scale_factor = 0
 
   local px, py = camera:toWorld(mx, my)
 
   active_tile = map:getTile(Tile.toTile(px, py))
 
-  camera:setPosition(cx + dx * scroll_speed * dt,
-                     cy + dy * scroll_speed * dt)
+  local cx, cy = camera:getPosition()
+  camera:setPosition(cx + dx * scroll_speed * 1/scale * dt,
+                     cy + dy * scroll_speed * 1/scale * dt)
 
+
+end
+
+function love.update(dt)
+  updateCamera(dt)
 end
 
 function love.draw()
@@ -56,12 +65,10 @@ function love.mousepressed(x, y, button)
       map:digg(active_tile.x, active_tile.y)
       active_tile = nil
     end
-  elseif button == "r" then
-    -- special action? properties?
-  elseif button == "wd" then
-    -- zoom in?
-  elseif button == "wu" then
-    -- zoom out?
+  elseif button == 'wd' then
+    scale_factor = 3
+  elseif button == 'wu' then
+    scale_factor = -3
   end
 end
 
