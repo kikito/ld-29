@@ -15,16 +15,21 @@ function LevelMethods:isOutOfBounds(x, y)
   return x < 1 or y < 1 or x > self.width or y > self.height
 end
 
+function LevelMethods:isSurface(x,y)
+  return y == 1
+end
+
 function LevelMethods:isDigged(x,y)
   return not self:isOutOfBounds(x,y) and not self:exists(x,y)
 end
 
 function LevelMethods:isDiggable(x,y)
   return self:exists(x, y) and
-         self:isDigged(x,  y-1) or
-         self:isDigged(x,  y+1) or
-         self:isDigged(x-1,  y) or
-         self:isDigged(x+1,  y)
+         not self:isSurface(x,y) and
+         ( self:isDigged(x,  y-1) or
+           self:isDigged(x,  y+1) or
+           self:isDigged(x-1,  y) or
+           self:isDigged(x+1,  y) )
 end
 
 function LevelMethods:draw(cl, ct, cw, ch)
