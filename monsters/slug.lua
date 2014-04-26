@@ -10,4 +10,11 @@ function Slug:getColor()
   return 255,255,0
 end
 
+function Slug:turnsWhileWandering()
+  return false
+end
+
+
 return Slug
+
+

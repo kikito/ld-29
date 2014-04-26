@@ -53,6 +53,7 @@ function Monster:chooseRandomAvailableDirection()
   local candidates = self:getAvailableDirections()
   candidates[self.direction] = nil
   local keys, len = util.get_keys(candidates)
+  if len == 0 then return self.direction end
   self.direction = keys[math.random(len)]
 end
 
@@ -89,9 +90,21 @@ function Monster:die()
   self.map:removeMonster(self)
 end
 
+function Monster:turnsWhileWandering(dt)
+  self.turnAccumulator = self.turnAccumulator + dt
+  if self.moveAccumulator > 0.1 then return false end
+  if math.random() < self.turnAccumulator then
+    self.turnAccumulator = 0
+    return true
+  end
+end
+
+
 function Monster:wonderAround(dt)
   if self.moveAccumulator < 0 then -- arriving to a new cell
     self.moveAccumulator = self.moveAccumulator + self.speed * dt
+  elseif self:turnsWhileWandering(dt) then
+    self:chooseRandomAvailableDirection()
   else
     local tile = self:getNextTile(self.direction)
     if tile and tile:isTraversableBy(self) then
@@ -146,6 +159,7 @@ local Idle = Monster:addState('Idle')
 
 function Idle:enteredState(dt)
   self.direction       = directionNames[math.random(#directionNames)]
+  self.turnAccumulator = 0
 end
 
 function Idle:update(dt)
