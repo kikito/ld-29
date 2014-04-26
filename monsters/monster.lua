@@ -1,4 +1,5 @@
 local class = require 'lib.middleclass'
+local util  = require 'lib.util'
 
 local Tile = require 'tile'
 
@@ -11,15 +12,6 @@ local directions = {
   right  = {dx=-1,dy=0}
 }
 local directionNames = {'up', 'down', 'left', 'right'}
-
-local get_keys = function(t)
-  local keys,len = {},0
-  for k in pairs(t) do
-    len = len + 1
-    keys[len] = k
-  end
-  return keys, len
-end
 
 function Monster:draw()
   love.graphics.setColor(255,255,255)
@@ -54,7 +46,7 @@ function Monster:chooseRandomAvailableDirection()
     end
   end
 
-  local keys, len = get_keys(candidates)
+  local keys, len = util.get_keys(candidates)
   self.direction = keys[math.random(len)]
 end
 
