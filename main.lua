@@ -44,6 +44,12 @@ end
 
 function love.update(dt)
   updateCamera(dt)
+  if love.mouse.isDown('l') then
+    if active_tile and map:isDiggable(active_tile.x, active_tile.y) then
+      map:digg(active_tile.x, active_tile.y)
+      active_tile = nil
+    end
+  end
 end
 
 function love.draw()
@@ -60,12 +66,7 @@ function love.draw()
 end
 
 function love.mousepressed(x, y, button)
-  if button == "l" then
-    if active_tile and map:isDiggable(active_tile.x, active_tile.y) then
-      map:digg(active_tile.x, active_tile.y)
-      active_tile = nil
-    end
-  elseif button == 'wd' then
+  if button == 'wd' then
     scale_factor = 3
   elseif button == 'wu' then
     scale_factor = -3
