@@ -5,14 +5,19 @@ local TILE_SIZE = 32
 local TileMethods = {}
 local TileMt      = {__index = TileMethods}
 
-function TileMethods:draw(active)
-  if active then
-    love.graphics.setColor(255,0,0)
-  else
-    love.graphics.setColor(255,255,255)
-  end
+function TileMethods:draw()
   local l,t = Tile.toWorld(self.x, self.y)
   love.graphics.rectangle("line", l, t, TILE_SIZE, TILE_SIZE)
+end
+
+function TileMethods:drawActive()
+  love.graphics.setColor(255,0,0)
+  self:draw()
+end
+
+function TileMethods:drawDiggable()
+  love.graphics.setColor(0,255,0)
+  self:draw()
 end
 
 

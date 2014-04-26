@@ -40,14 +40,22 @@ end
 function love.draw()
   camera:draw(function(l,t,w,h)
     level:draw(l,t,w,h)
-    active_tile:draw(true)
+    if active_tile then
+      if level:isDiggable(active_tile.x, active_tile.y) then
+        active_tile:drawDiggable()
+      else
+        active_tile:drawActive()
+      end
+    end
   end)
-
 end
 
 function love.mousepressed(x, y, button)
   if button == "l" then
-    -- click
+    if active_tile and level:isDiggable(active_tile.x, active_tile.y) then
+      level:digg(active_tile.x, active_tile.y)
+      active_tile = nil
+    end
   elseif button == "r" then
     -- special action? properties?
   elseif button == "wd" then
@@ -58,7 +66,7 @@ function love.mousepressed(x, y, button)
 end
 
 function love.keypressed(key)
-  if key == "esc" then
+  if key == "escape" then
     -- pause / go back / exit
     love.event.quit()
   end
