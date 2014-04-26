@@ -41,7 +41,7 @@ function Monster:getAvailableDirections()
   local candidates = {up=1,down=1,left=1,right=1}
   for i = 1, #directionNames do
     local directionName = directionNames[i]
-    local tile = self:getNextTile(directionName)
+    local tile = self:getNeighborTile(directionName)
     if not (tile and tile:isTraversableBy(self)) then
       candidates[directionName] = nil
     end
@@ -57,7 +57,7 @@ function Monster:chooseRandomAvailableDirection()
   self.direction = keys[math.random(len)]
 end
 
-function Monster:getNextTile(direction)
+function Monster:getNeighborTile(direction)
   local d = directionDeltas[direction]
   return self.map:getTile(self.x + d.dx, self.y + d.dy)
 end
@@ -106,7 +106,7 @@ function Monster:wonderAround(dt)
   elseif self:turnsWhileWandering(dt) then
     self:chooseRandomAvailableDirection()
   else
-    local tile = self:getNextTile(self.direction)
+    local tile = self:getNeighborTile(self.direction)
     if tile and tile:isTraversableBy(self) then
       self.moveAccumulator = self.moveAccumulator + self.speed * dt
       if self.moveAccumulator >= 0.5 then

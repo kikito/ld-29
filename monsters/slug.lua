@@ -17,9 +17,8 @@ end
 local Idle = Slug.states.Idle
 
 function Idle:collideWithTile(tile)
-  print('collided')
-  if self.food > 1 and tile.food > 1 then
-    self.injectingTile = tile
+  if tile and self.food > 1 and tile.food > 1 then
+    self.injectTile = tile
     self:gotoState('Injecting')
   else
     self:chooseRandomAvailableDirection()
@@ -34,18 +33,67 @@ function Injecting:enteredState()
 end
 
 function Injecting:update(dt)
-  if self.injectingTile.digged or self.food == 1 then
+  if self.injectTile.digged or self.food == 0 then
     self:gotoState('Idle')
     self:update(0)
   else
     self.injectAccumulator = self.injectAccumulator + dt
     while self.injectAccumulator >= 1 do
       self.injectAccumulator = self.injectAccumulator - 1
-      self.injectingTile.food = self.injectingTile.food + 1
+      self.injectTile.food = self.injectTile.food + 1
       self.food = self.food - 1
     end
   end
 end
+
+function Injecting:exitedState()
+  self.injectAccumulator = 0
+  self.injectTile = nil
+end
+
+
+
+local Hungry = Slug.states.Hungry
+
+local function hasFood(self, direction)
+  local tile = self:getNeighborTile(direction)
+  if tile and tile.food > 0 then return tile end
+end
+
+function Hungry:canEat()
+  self.absorbTile = hasFood(self, 'down') or hasFood(self, 'right') or hasFood(self, 'left') or hasFood(self, 'up')
+  return self.absorbTile
+end
+
+function Hungry:eat()
+  self:gotoState('Absorbing')
+end
+
+local Absorbing = Slug:addState('Absorbing')
+
+function Absorbing:enteredState()
+  self.moveAccumulator = 0
+  self.absorbAccumulator = 0
+end
+
+function Absorbing:update(dt)
+  if self.absorbTile.digged or self.food == 2 or self.absorbTile.food == 0 then
+    self:gotoState('Idle')
+    self:update(0)
+  else
+    self.absorbAccumulator = self.absorbAccumulator + dt
+    while self.absorbAccumulator >= 1 do
+      self.absorbAccumulator = self.absorbAccumulator - 1
+      self.absorbTile.food = self.absorbTile.food - 1
+      self.food = self.food + 1
+      self.hp = self.hp + 4
+    end
+  end
+end
+
+
+
+
 
 
 return Slug
