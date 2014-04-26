@@ -9,8 +9,8 @@ factory.create = function(tile)
 
   if food == 0 then return nil end
   if food <= 10 then return  Slug:new(map, x, y, food, mana) end
-  if food <= 33 then return  Rat:new(map, x, y, food, mana) end
-  if food <= 100 then return Goblin:new(map, x, y, food, mana) end
+  if food <= 16 then return  Rat:new(map, x, y, food, mana) end
+  if food >= 17 then return Goblin:new(map, x, y, food, mana) end
 end
 
 return factory

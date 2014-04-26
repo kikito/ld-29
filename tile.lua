@@ -86,10 +86,10 @@ end
 local charValues = {
   [' '] = {digged = true},
   ['.'] = {food = 0,  mana = 0},
-  ['1'] = {food = 10, mana = 0},
-  ['2'] = {food = 33, mana = 0},
-  ['3'] = {food = 66, mana = 0},
-  ['4'] = {food =100, mana = 0}
+  ['1'] = {food = 5,  mana = 0},
+  ['2'] = {food = 16, mana = 0},
+  ['3'] = {food = 20, mana = 0},
+  ['4'] = {food = 50, mana = 0}
 }
 
 Tile.newFromChar = function(map, x,y, char)

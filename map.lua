@@ -78,6 +78,11 @@ function MapMethods:addMonster(monster)
   end
 end
 
+function MapMethods:removeMonster(monster)
+  self:getTile(monster.x, monster.y):removeMonster(monster)
+  self.monsters[monster] = nil
+end
+
 function MapMethods:moveMonster(monster, newTile)
   monster:getTile():removeMonster(monster)
   newTile:addMonster(monster)
