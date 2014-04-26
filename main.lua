@@ -50,6 +50,7 @@ function love.update(dt)
       active_tile = nil
     end
   end
+  map:update(dt)
 end
 
 function love.draw()

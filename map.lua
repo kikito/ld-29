@@ -64,15 +64,22 @@ function MapMethods:digg(x,y)
   end
 end
 
+function MapMethods:update(dt)
+  for monster in pairs(self.monsters) do
+    monster:update(dt)
+  end
+end
+
 function MapMethods:addMonster(monster)
   if monster then
     self:getTile(monster.x, monster.y).monsters[monster] = true
+    self.monsters[monster] = true
   end
 end
 
 Map.newFromString = function(str)
   local width = #(str:match("[^\n]+"))
-  local instance = { width = width, rows = {} }
+  local instance = { width = width, rows = {}, monsters={} }
   local height = 0
   local x
   for line in str:gmatch("[^\n]+") do
@@ -94,7 +101,7 @@ end
 
 
 Map.new = function(width, height)
-  local instance = { width = width, height = height, rows = {} }
+  local instance = { width = width, height = height, rows = {}, monsters={} }
   for y=1, height do
     instance.rows[y] = {}
     for x=1, width do
