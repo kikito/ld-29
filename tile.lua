@@ -38,6 +38,10 @@ function TileMethods:drawDiggable()
   self:drawBorders(0,255,0)
 end
 
+function TileMethods:canSpawnMonster()
+  return self.nutrient ~= 0 or self.mana ~= 0
+end
+
 function TileMethods:digg()
   self.nutrient = 0
   self.mana = 0

@@ -59,7 +59,9 @@ end
 function MapMethods:digg(x,y)
   local tile = self:getTile(x,y)
   if tile then
-    self:addMonster(Monster.newFromTile(tile))
+    if tile:canSpawnMonster() then
+      self:addMonster(Monster:new(tile))
+    end
     tile:digg()
   end
 end

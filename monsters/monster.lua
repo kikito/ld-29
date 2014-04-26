@@ -1,8 +1,8 @@
-local Tile = require 'tile'
-local Monster = {}
+local class = require 'lib.middleclass'
 
-local MonsterMethods = {}
-local MonsterMt      = {__index = MonsterMethods}
+local Tile = require 'tile'
+
+local Monster = class('Monster')
 
 local directions = {
   up     = {dx=0, dy=-1},
@@ -21,14 +21,14 @@ local get_keys = function(t)
   return keys, len
 end
 
-function MonsterMethods:draw()
+function Monster:draw()
   love.graphics.setColor(255,255,255)
   local l,t = Tile.toWorld(self.x, self.y)
   local x,y = l + Tile.TILE_SIZE / 2, t + Tile.TILE_SIZE / 2
   love.graphics.circle('fill', x, y, 10)
 end
 
-function MonsterMethods:update(dt)
+function Monster:update(dt)
   self.speedAccumulator = self.speedAccumulator + self.speed * dt
 
   if self.speedAccumulator >= 1 then
@@ -43,7 +43,7 @@ function MonsterMethods:update(dt)
   end
 end
 
-function MonsterMethods:chooseRandomAvailableDirection()
+function Monster:chooseRandomAvailableDirection()
   local candidates = {up=1,down=1,left=1,right=1}
   candidates[self.direction] = nil
   for i = 1, #directionNames do
@@ -58,33 +58,20 @@ function MonsterMethods:chooseRandomAvailableDirection()
   self.direction = keys[math.random(len)]
 end
 
-function MonsterMethods:getNextTile(direction)
+function Monster:getNextTile(direction)
   local d = directions[direction]
   return self.map:getTile(self.x + d.dx, self.y + d.dy)
 end
 
-Monster.new = function(map,x,y,nutrient,mana)
-  return setmetatable({
-    map=map,
-    x=x,
-    y=y,
-    nutrient=nutrient,
-    mana=mana,
-    speed=1,
-    speedAccumulator=0,
-    direction = directionNames[math.random(#directionNames)]
-  }, MonsterMt)
-end
-
-Monster.newFromTile = function(tile)
-  if tile.mana == 0 and tile.nutrient == 0 then return nil end
-  return Monster.new(
-    tile.map,
-    tile.x,
-    tile.y,
-    tile.nutrient,
-    tile.mana
-  )
+function Monster:initialize(tile)
+  self.map=tile.map
+  self.x=tile.x
+  self.y=tile.y
+  self.nutrient=tile.nutrient
+  self.mana=tile.mana
+  self.speed=1
+  self.speedAccumulator=0
+  self.direction = directionNames[math.random(#directionNames)]
 end
 
 return Monster
