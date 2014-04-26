@@ -11,15 +11,16 @@ function TileMethods:draw()
 end
 
 
+Tile.TILE_SIZE = TILE_SIZE
+
 Tile.fromScreen = function(x, y)
   local floor = math.floor
-  return floor(tx / TILE_SIZE) - 1, floor(ty / TILE_SIZE) + 1
+  return floor(x / TILE_SIZE) + 1, floor(y / TILE_SIZE) + 1
 end
 
 Tile.toScreen = function(tx, ty)
   return (tx - 1) * TILE_SIZE, (ty - 1) * TILE_SIZE
 end
-
 
 Tile.new = function(x,y,nutrient,mana)
   return setmetatable({
@@ -29,5 +30,6 @@ Tile.new = function(x,y,nutrient,mana)
     mana      = mana or 0
   }, TileMt)
 end
+
 
 return Tile

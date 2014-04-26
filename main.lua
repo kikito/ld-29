@@ -1,16 +1,40 @@
-local Level = require 'level'
+local Level  = require 'level'
+local gamera = require 'lib.gamera'
 
 local level
+local camera
+local scroll_speed = 100 -- pixels / second
+local scroll_margin = 60 -- pixel
+
 function love.load()
-  level = Level.new(400, 400)
+  level  = Level.new(100, 100)
+  camera = gamera.new(0,0, level:getDimensions())
 end
 
 function love.update(dt)
+  local sw, sh = love.graphics.getDimensions()
+  local mx, my = love.mouse.getPosition()
+  local dx, dy = 0, 0
+
+  if     mx <= scroll_margin      then dx = -1
+  elseif mx >= sw - scroll_margin then dx = 1
+  end
+
+  if     my <= scroll_margin      then dy = -1
+  elseif my >= sh - scroll_margin then dy = 1
+  end
+
+  local cx, cy = camera:getPosition()
+
+  camera:setPosition(cx + dx * scroll_speed * dt,
+                     cy + dy * scroll_speed * dt)
 
 end
 
 function love.draw()
-  level:draw()
+  camera:draw(function(l,t,w,h)
+    level:draw(l,t,w,h)
+  end)
 end
 
 function love.mousepressed(x, y, button)
@@ -28,6 +52,6 @@ end
 function love.keypressed(key)
   if key == "esc" then
     -- pause / go back / exit
-    love.quit()
+    love.event.quit()
   end
 end

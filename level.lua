@@ -6,17 +6,26 @@ local LevelMethods  = {}
 local LevelMt       = {__index  = LevelMethods}
 
 function LevelMethods:getTile(x,y)
-  return assert(self.rows[y][x], 'tile not found: ' .. x .. ', ' .. y)
+  local row = assert(self.rows[y], y)
+  return assert(row[x], x)
 end
 
-function LevelMethods:draw()
-  for y=1, self.height do
-    for x=1, self.width do
+function LevelMethods:draw(cl, ct, cw, ch)
+  local floor, min, max = math.floor, math.min, math.max
+  local minX, minY = Tile.fromScreen(cl, ct)
+  local maxX, maxY = Tile.fromScreen(cl+cw, ct+ch)
+
+  for y=minY, maxY do
+    for x=minX, maxX do
       self:getTile(x,y):draw()
     end
   end
 end
 
+function LevelMethods:getDimensions()
+  return self.width * Tile.TILE_SIZE,
+         self.height * Tile.TILE_SIZE
+end
 
 Level.new = function(width, height)
   local instance = { width = width, height = height, rows = {} }
