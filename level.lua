@@ -12,8 +12,8 @@ end
 
 function LevelMethods:draw(cl, ct, cw, ch)
   local floor, min, max = math.floor, math.min, math.max
-  local minX, minY = Tile.fromScreen(cl, ct)
-  local maxX, maxY = Tile.fromScreen(cl+cw, ct+ch)
+  local minX, minY = Tile.toTile(cl, ct)
+  local maxX, maxY = Tile.toTile(cl+cw, ct+ch)
 
   for y=minY, maxY do
     for x=minX, maxX do
