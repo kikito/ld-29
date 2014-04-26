@@ -114,9 +114,13 @@ function Monster:wonderAround(dt)
         self.map:moveMonster(self, tile)
       end
     else
-      self:chooseRandomAvailableDirection()
+      self:collideWithTile(tile)
     end
   end
+end
+
+function Monster:collideWithTile(tile)
+  self:chooseRandomAvailableDirection()
 end
 
 function Monster:increaseHunger(dt)
