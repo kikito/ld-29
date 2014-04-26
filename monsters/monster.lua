@@ -6,7 +6,7 @@ local Tile = require 'tile'
 
 local Monster = class('Monster'):include(Stateful)
 
-local directions = {
+local directionDeltas = {
   up     = {dx=0, dy=-1},
   down   = {dx=0, dy=1},
   left   = {dx=1, dy=0},
@@ -20,9 +20,14 @@ end
 
 function Monster:draw()
   love.graphics.setColor(self:getColor())
-  local l,t = Tile.toWorld(self.x, self.y)
+  local l,t = self:getWorldLeftTop()
   local x,y = l + Tile.TILE_SIZE / 2, t + Tile.TILE_SIZE / 2
   love.graphics.circle('fill', x, y, 10)
+  self:getTile():drawBorders(255,0,255)
+end
+
+function Monster:getWorldLeftTop()
+  return Tile.toWorld(self.x, self.y)
 end
 
 function Monster:update(dt)
@@ -48,8 +53,17 @@ function Monster:chooseRandomAvailableDirection()
 end
 
 function Monster:getNextTile(direction)
-  local d = directions[direction]
+  local d = directionDeltas[direction]
   return self.map:getTile(self.x + d.dx, self.y + d.dy)
+end
+
+function Monster:getDirectionDeltas()
+  local d = directionDeltas[self.direction]
+  return d.dx, d.dy
+end
+
+function Monster:getTile()
+  return self.map:getTile(self.x, self.y)
 end
 
 function Monster:initialize(tile)
@@ -67,26 +81,37 @@ end
 local Idle = Monster:addState('Idle')
 
 function Idle:enteredState(dt)
-  self.speedAccumulator = 0
+  self.moveAccumulator = 0
   self.direction        = directionNames[math.random(#directionNames)]
 end
 
 function Idle:update(dt)
-  self.speedAccumulator = self.speedAccumulator + self.speed * dt
 
-  if self.speedAccumulator >= 1 then
-    self.speedAccumulator = self.speedAccumulator - 1
+  if self.moveAccumulator < 0 then
+    self.moveAccumulator = self.moveAccumulator + self.speed * dt
+  else
     local tile = self:getNextTile(self.direction)
     if tile and tile:isTraversableBy(self) then
-      self.x = tile.x
-      self.y = tile.y
+      self.moveAccumulator = self.moveAccumulator + self.speed * dt
+      if self.moveAccumulator >= 0.5 then
+        self.moveAccumulator = self.moveAccumulator - 1
+        self.map:moveMonster(self, tile)
+      end
     else
       self:chooseRandomAvailableDirection()
     end
   end
 end
+
 function Idle:getColor()
   return 0,255,0
 end
 
+function Idle:getWorldLeftTop()
+  local l,t = Monster.getWorldLeftTop(self)
+  local dx, dy = self:getDirectionDeltas()
+  local speed, accum = self.speed, self.moveAccumulator
+  return l + dx * self.speed * self.moveAccumulator * Tile.TILE_SIZE,
+         t + dy * self.speed * self.moveAccumulator * Tile.TILE_SIZE
+end
 return Monster

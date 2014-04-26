@@ -74,9 +74,15 @@ end
 
 function MapMethods:addMonster(monster)
   if monster then
-    self:getTile(monster.x, monster.y).monsters[monster] = true
+    self:getTile(monster.x, monster.y):addMonster(monster)
     self.monsters[monster] = true
   end
+end
+
+function MapMethods:moveMonster(monster, newTile)
+  monster:getTile():removeMonster(monster)
+  newTile:addMonster(monster)
+  monster.x, monster.y = newTile.x, newTile.y
 end
 
 Map.newFromString = function(str)

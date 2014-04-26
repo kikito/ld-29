@@ -52,6 +52,14 @@ function TileMethods:isTraversableBy(monster)
   return self.digged
 end
 
+function TileMethods:addMonster(monster)
+  self.monsters[monster] = true
+end
+
+function TileMethods:removeMonster(monster)
+  self.monsters[monster] = nil
+end
+
 Tile.TILE_SIZE = TILE_SIZE
 
 Tile.toTile = function(x, y)
