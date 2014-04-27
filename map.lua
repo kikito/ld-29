@@ -1,6 +1,6 @@
 local class    = require "middleclass"
 local Tile     = require "tile"
-local factory  = require "monster_factory"
+local monsters = require "monsters"
 local util     = require "lib.util"
 
 local Map = class('Map')
@@ -78,7 +78,7 @@ end
 function Map:digg(x,y)
   local tile = self:getTileOrError(x,y)
   if tile then
-    local monster = factory.create(tile)
+    local monster = monsters.create(tile)
     self:addMonster(monster)
     tile:digg()
   end

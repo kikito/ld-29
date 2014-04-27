@@ -2,9 +2,9 @@ local Slug   = require 'monsters.slug'
 local Rat    = require 'monsters.rat'
 local Goblin = require 'monsters.goblin'
 
-local factory = {}
+local monsters = {}
 
-factory.create = function(tile)
+monsters.create = function(tile)
   local map, x, y, food, mana = tile.map, tile.x, tile.y, tile.food, tile.mana
 
   if food == 0 then return nil end
@@ -13,4 +13,4 @@ factory.create = function(tile)
   if food >= 17 then return Goblin:new(map, x, y, food, mana) end
 end
 
-return factory
+return monsters
