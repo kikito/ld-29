@@ -3,7 +3,9 @@ local Monster  = require 'monsters.monster'
 local Mushroom = Monster:subclass('Mushroom')
 
 function Mushroom:initialize(map, x, y, food, mana)
+  self:setAnimations('mushroom_idle')
   Monster.initialize(self, map, x, y, food, mana, {hp = 10, speed = 0})
+  self.currentAnimation = self.animations.mushroom_idle
 end
 
 function Mushroom:getColor()
@@ -21,7 +23,7 @@ function Idle:enteredState()
 end
 
 function Idle:update(dt)
-
+  if self.currentAnimation then self.currentAnimation:update(dt) end
   self:increaseHunger(dt)
   if self:isDead() then
     self:gotoState('Starving')

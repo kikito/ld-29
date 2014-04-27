@@ -1,6 +1,7 @@
 local Map  = require 'map'
 local Tile   = require 'tile'
 local gamera = require 'lib.gamera'
+local Mushroom = require 'monsters.mushroom'
 
 local map
 local camera
@@ -13,6 +14,7 @@ local sw, sh = love.graphics.getDimensions()
 
 function love.load()
   map  = Map:newFromFile('maps/map1.txt')
+  map:addMonster(Mushroom:new(map, 8,3,5,10))
   camera = gamera.new(0,0, map:getDimensions())
   camera:setWindow(0,32, sw, sh-64)
 end

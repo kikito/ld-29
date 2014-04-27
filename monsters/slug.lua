@@ -1,18 +1,33 @@
+local util     = require 'lib.util'
 local Monster  = require 'monsters.monster'
 local Mushroom = require 'monsters.mushroom'
 
 local Slug = Monster:subclass('Slug')
 
 function Slug:initialize(map, x, y, food, mana)
+  self:setAnimations(
+    'slug_walk_left', 'slug_walk_up', 'slug_walk_down', 'slug_walk_right',
+    'slug_suck_left', 'slug_suck_up', 'slug_suck_down', 'slug_suck_right'
+  )
   Monster.initialize(self, map, x, y, food, mana, {voracity = 0.5, hp = 15})
 end
 
 function Slug:getColor()
-  return 255,255,0
+  return 0,255,0
 end
 
 function Slug:turnsWhileWandering()
   return false
+end
+
+function Slug:getActionName()
+  return 'walk'
+end
+
+function Slug:setDirection(direction)
+  Monster.setDirection(self, direction)
+  self.currentAnimation = self.animations['slug_' .. self:getActionName() .. '_' .. direction]
+  self.currentAnimation:gotoFrame(1)
 end
 
 local Idle = Slug.states.Idle
@@ -28,12 +43,18 @@ end
 
 local Injecting = Slug:addState('Injecting')
 
+function Injecting:getActionName()
+  return 'suck'
+end
+
 function Injecting:enteredState()
   self.moveAccumulator = 0
   self.injectAccumulator = 0
+  self:setDirection(self.direction)
 end
 
 function Injecting:update(dt)
+  if self.currentAnimation then self.currentAnimation:update(dt) end
   if self.injectTile.digged or self.food == 0 then
     self:gotoState('Idle')
     self:update(0)
@@ -60,18 +81,18 @@ function Starving:enteredState()
 end
 
 
-
-
 local Hungry = Slug.states.Hungry
 
-local function hasFood(self, direction)
-  local tile = self:getNeighborTile(direction)
-  if tile and tile.food > 0 then return tile end
-end
-
 function Hungry:canEat()
-  self.absorbTile = hasFood(self, 'down') or hasFood(self, 'right') or hasFood(self, 'left') or hasFood(self, 'up')
-  return self.absorbTile
+  for i=1, #util.directionNames do
+    local dir = util.directionNames[i]
+    local tile = self:getNeighborTile(dir)
+    if tile and tile.food > 0 then
+      self.absorbTile = tile
+      self.absorbDirection = dir
+      return true
+    end
+  end
 end
 
 function Hungry:eat()
@@ -80,12 +101,18 @@ end
 
 local Absorbing = Slug:addState('Absorbing')
 
+function Absorbing:getActionName()
+  return 'suck'
+end
+
 function Absorbing:enteredState()
   self.moveAccumulator = 0
   self.absorbAccumulator = 0
+  self:setDirection(self.absorbDirection)
 end
 
 function Absorbing:update(dt)
+  if self.currentAnimation then self.currentAnimation:update(dt) end
   if self.absorbTile.digged or self.hp >= self.total_hp or self.absorbTile.food == 0 then
     self:gotoState('Idle')
     self:update(0)

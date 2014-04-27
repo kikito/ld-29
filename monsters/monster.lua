@@ -1,6 +1,7 @@
-local class    = require 'lib.middleclass'
-local Stateful = require 'lib.stateful'
-local util     = require 'lib.util'
+local class       = require 'lib.middleclass'
+local Stateful    = require 'lib.stateful'
+local util        = require 'lib.util'
+local animations  = require 'animations'
 
 local Tile = require 'tile'
 
@@ -10,11 +11,21 @@ function Monster:getColor()
   return 255, 255, 255
 end
 
+function Monster:setAnimations(...)
+  self.animations = animations.createGroup(...)
+end
+
 function Monster:draw()
-  love.graphics.setColor(self:getColor())
   local l,t = self:getWorldLeftTop()
-  local x,y = l + Tile.TILE_SIZE / 2, t + Tile.TILE_SIZE / 2
-  love.graphics.circle('fill', x, y, 10)
+  if self.currentAnimation then
+    love.graphics.setColor(255,255,255)
+    self.currentAnimation:draw(animations.img, l,t)
+  else
+    love.graphics.setColor(self:getColor())
+    local x,y = l + Tile.TILE_SIZE / 2, t + Tile.TILE_SIZE / 2
+    love.graphics.circle('fill', x, y, 10)
+  end
+
   self:getTile():drawBorders(255,0,255)
 end
 
@@ -27,6 +38,7 @@ function Monster:getWorldLeftTop()
 end
 
 function Monster:update(dt)
+  if self.currentAnimation then self.currentAnimation:update(dt) end
 end
 
 function Monster:getAvailableDirections()
@@ -43,10 +55,12 @@ end
 
 function Monster:chooseRandomAvailableDirection()
   local candidates = self:getAvailableDirections()
-  candidates[self.direction] = nil
   local keys, len = util.get_keys(candidates)
-  if len == 0 then return self.direction end
-  self.direction = keys[math.random(len)]
+  self:setDirection(keys[math.random(len)])
+end
+
+function Monster:setDirection(direction)
+  self.direction = direction
 end
 
 function Monster:getNeighborTile(direction)
@@ -82,7 +96,7 @@ function Monster:initialize(map, x, y, food, mana, options)
 end
 
 function Monster:__tostring()
-  return ("%s- HP: %d, Mana: %d, Food: %d"):format(self.class.name, self.hp, self.mana, self.food)
+  return ("%s- HP: %d, Food: %d, dir: %s"):format(self.class.name, self.hp, self.food, self.direction)
 end
 
 function Monster:die()
@@ -161,11 +175,12 @@ end
 local Idle = Monster:addState('Idle')
 
 function Idle:enteredState(dt)
-  self.direction       = util.getRandomDirectionName()
+  self:setDirection(util.getRandomDirectionName())
   self.turnAccumulator = 0
 end
 
 function Idle:update(dt)
+  if self.currentAnimation then self.currentAnimation:update(dt) end
   self:increaseHunger(dt)
   if self:isDead() then
     self:gotoState('Starving')
@@ -187,6 +202,7 @@ function Starving:enteredState()
 end
 
 function Starving:update(dt)
+  if self.currentAnimation then self.currentAnimation:update(dt) end
   self:popAllStates()
 end
 
@@ -199,6 +215,7 @@ end
 local Hungry = Monster:addState('Hungry')
 
 function Hungry:update(dt)
+  if self.currentAnimation then self.currentAnimation:update(dt) end
   self:increaseHunger(dt)
   if self:isDead() then
     self:gotoState('Starving')
