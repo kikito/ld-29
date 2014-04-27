@@ -2,6 +2,8 @@ local Map  = require 'map'
 local Tile   = require 'tile'
 local gamera = require 'lib.gamera'
 
+local isDown = love.keyboard.isDown
+
 local map
 local camera
 local scrollSpeed = 200 -- pixels / second
@@ -15,18 +17,19 @@ function love.load()
   map  = Map:newFromFile('maps/map1.txt')
   camera = gamera.new(0,0, map:getDimensions())
   camera:setWindow(0,32, sw, sh-64)
+  camera:setPosition(0,0)
 end
 
 local function updateCamera(dt)
   local mx, my = love.mouse.getPosition()
   local dx, dy = 0, 0
 
-  if     mx <= scroll_margin      then dx = -1
-  elseif mx >= sw - scroll_margin then dx = 1
+  if     mx <= scroll_margin      or isDown('left') then dx = -1
+  elseif mx >= sw - scroll_margin or isDown('right')  then dx = 1
   end
 
-  if     my <= scroll_margin      then dy = -1
-  elseif my >= sh - scroll_margin then dy = 1
+  if     my <= scroll_margin      or isDown('up')   then dy = -1
+  elseif my >= sh - scroll_margin or isDown('down') then dy = 1
   end
 
   camera:setScale(math.min(camera:getScale() + scaleFactor * dt, 2))
