@@ -54,5 +54,7 @@ animations.createGroup = function(...)
   return res
 end
 
+animations.grid = g
+
 
 return animations

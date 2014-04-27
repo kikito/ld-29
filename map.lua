@@ -6,6 +6,7 @@ local util     = require "lib.util"
 local Map = class('Map')
 
 local charValues = {
+  ['D'] = {door = true},
   [' '] = {digged = true},
   ['.'] = {food = 0,  mana = 0},
   ['1'] = {food = 5,  mana = 0},
@@ -16,7 +17,7 @@ local charValues = {
 
 local getCharValues = function(char)
   local values = charValues[char]
-  return values.food or 0, values.mana or 0, values.digged
+  return values.food or 0, values.mana or 0, values.digged, values.door
 end
 
 function Map:getTile(x,y)
@@ -145,10 +146,11 @@ function Map.static:newFromString(str)
     map:addRow()
     x,y = 1, map.height
     for char in line:gmatch(".") do
-      local food, mana, digged = getCharValues(char)
+      local food, mana, digged, door = getCharValues(char)
       local tile = map:getTileOrError(x,y)
       tile.food, tile.mana = food, mana
       if digged then map:digg(x,y) end
+      if door then tile.door = true end
       x = x + 1
     end
   end

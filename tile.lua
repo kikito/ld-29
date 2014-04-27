@@ -1,4 +1,24 @@
 local class = require 'lib.middleclass'
+local animations = require 'animations'
+
+local g = animations.grid
+
+local earthFrame   = g(1, 6)[1]
+local surfaceFrame = g(2, 6)[1]
+local doorFrame    = g(3, 6)[1]
+local slugFrame    = g(4, 6)[1]
+local ratFrame     = g(5, 6)[1]
+local goblinFrame  = g(6, 6)[1]
+
+local function getFrame(tile)
+  if tile.door then return doorFrame end
+  if tile.y == 1 then return surfaceFrame end
+  if tile.food == 0 then return earthFrame end
+  if tile.food <= 10 then return slugFrame end
+  if tile.food <= 16 then return ratFrame end
+  if tile.food >= 17 then return goblinFrame end
+end
+
 
 local Tile = class('Tile')
 
@@ -11,15 +31,8 @@ function Tile:draw()
     end
   else
     local l,t = Tile.toWorld(self.x, self.y)
-    if self.food == 0 then
-      love.graphics.setColor(100,100,100)
-    else
-      local r = 50 + math.floor((self.food) / 100 * 20)
-      local g = 55 + math.floor((self.food / 100) * 200)
-      local b = r
-      love.graphics.setColor(r,g,b)
-    end
-    love.graphics.rectangle("fill", l, t, TILE_SIZE, TILE_SIZE)
+    love.graphics.setColor(255,255,255)
+    love.graphics.draw(animations.img, getFrame(self), l, t)
   end
 end
 
