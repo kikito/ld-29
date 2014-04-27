@@ -109,14 +109,16 @@ function Map:moveMonster(monster, newTile)
   monster.x, monster.y = newTile.x, newTile.y
 end
 
-function Map:addFoodExplosion(x,y,intensity)
-  for _,d in pairs(util.directionDeltas) do
-    local tile = self:getTile(x + d.dx, y + d.dy)
-    if tile and not tile.digged then
-      tile.food = tile.food + intensity
+function Map:addFoodExplosion(x,y,intensity, radius)
+  radius = radius or 1
+  for i=x-radius, x+radius do
+    for j=y-radius, x+radius do
+      local tile = self:getTile(i,j)
+      if tile and not tile.digged then
+        tile.food = tile.food + math.random(intensity)
+      end
     end
   end
-  return candidates
 end
 
 function Map:addRow()

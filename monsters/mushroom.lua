@@ -34,7 +34,7 @@ function Idle:update(dt)
       self.foodExplosionAccumulator = 0
       if math.random() < 0.3 then
         local foodUsed = math.random(self.food)
-        self.map:addFoodExplosion(self.x, self.y, foodUsed)
+        self.map:addFoodExplosion(self.x, self.y, foodUsed, 2)
         self.food = self.food - 1
       end
     end
