@@ -4,18 +4,20 @@ local gamera = require 'lib.gamera'
 
 local map
 local camera
-local scroll_speed = 200 -- pixels / second
+local scrollSpeed = 200 -- pixels / second
 local scroll_margin = 60 -- pixel
-local scale_factor = 0
-local active_tile
+local scaleFactor = 0
+local activeTile
+
+local sw, sh = love.graphics.getDimensions()
 
 function love.load()
-  map  = Map.newFromFile('maps/map1.txt')
+  map  = Map:newFromFile('maps/map1.txt')
   camera = gamera.new(0,0, map:getDimensions())
+  camera:setWindow(0,32, sw, sh-64)
 end
 
 local function updateCamera(dt)
-  local sw, sh = love.graphics.getDimensions()
   local mx, my = love.mouse.getPosition()
   local dx, dy = 0, 0
 
@@ -27,27 +29,25 @@ local function updateCamera(dt)
   elseif my >= sh - scroll_margin then dy = 1
   end
 
-  camera:setScale(math.min(camera:getScale() + scale_factor * dt, 2))
+  camera:setScale(math.min(camera:getScale() + scaleFactor * dt, 2))
   local scale = camera:getScale()
-  scale_factor = 0
+  scaleFactor = 0
 
   local px, py = camera:toWorld(mx, my)
 
-  active_tile = map:getTile(Tile.toTile(px, py))
+  activeTile = map:getTile(Tile.toTile(px, py))
 
   local cx, cy = camera:getPosition()
-  camera:setPosition(cx + dx * scroll_speed * 1/scale * dt,
-                     cy + dy * scroll_speed * 1/scale * dt)
-
-
+  camera:setPosition(cx + dx * scrollSpeed * 1/scale * dt,
+                     cy + dy * scrollSpeed * 1/scale * dt)
 end
 
 function love.update(dt)
   updateCamera(dt)
   if love.mouse.isDown('l') then
-    if active_tile and map:isDiggable(active_tile.x, active_tile.y) then
-      map:digg(active_tile.x, active_tile.y)
-      active_tile = nil
+    if activeTile and map:isDiggable(activeTile.x, activeTile.y) then
+      map:digg(activeTile.x, activeTile.y)
+      activeTile = nil
     end
   end
   map:update(dt)
@@ -56,21 +56,26 @@ end
 function love.draw()
   camera:draw(function(l,t,w,h)
     map:draw(l,t,w,h)
-    if active_tile then
-      if map:isDiggable(active_tile.x, active_tile.y) then
-        active_tile:drawDiggable()
+    if activeTile then
+      if map:isDiggable(activeTile.x, activeTile.y) then
+        activeTile:drawDiggable()
       else
-        active_tile:drawActive()
+        activeTile:drawActive()
       end
     end
   end)
+  if activeTile then
+    local msg = tostring(activeTile)
+    love.graphics.setColor(255,255,255)
+    love.graphics.printf(msg, 200, sh-32, sw-200, 'right')
+  end
 end
 
 function love.mousepressed(x, y, button)
   if button == 'wd' then
-    scale_factor = 3
+    scaleFactor = 3
   elseif button == 'wu' then
-    scale_factor = -3
+    scaleFactor = -3
   end
 end
 

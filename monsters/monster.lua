@@ -81,6 +81,10 @@ function Monster:initialize(map, x, y, food, mana, options)
   self:gotoState('Idle')
 end
 
+function Monster:__tostring()
+  return ("%s- HP: %d, Mana: %d, Food: %d"):format(self.class.name, self.hp, self.mana, self.food)
+end
+
 function Monster:die()
   self.map:removeMonster(self)
 end
