@@ -1,4 +1,5 @@
 local Monster  = require 'monsters.monster'
+local Mushroom = require 'monsters.mushroom'
 
 local Slug = Monster:subclass('Slug')
 
@@ -51,6 +52,14 @@ function Injecting:exitedState()
   self.injectTile = nil
 end
 
+local Starving = Slug.states.Starving
+
+function Starving:enteredState()
+  Monster.states.Starving.enteredState(self)
+  self.map:addMonster(Mushroom:new(self.map, self.x, self.y, self.food, self.mana))
+end
+
+
 
 
 local Hungry = Slug.states.Hungry
@@ -77,7 +86,7 @@ function Absorbing:enteredState()
 end
 
 function Absorbing:update(dt)
-  if self.absorbTile.digged or self.food == 2 or self.absorbTile.food == 0 then
+  if self.absorbTile.digged or self.hp >= self.total_hp or self.absorbTile.food == 0 then
     self:gotoState('Idle')
     self:update(0)
   else

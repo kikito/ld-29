@@ -1,5 +1,6 @@
 local Tile     = require "tile"
 local factory  = require "monster_factory"
+local util     = require "lib.util"
 
 local Map = {}
 
@@ -87,6 +88,16 @@ function MapMethods:moveMonster(monster, newTile)
   monster:getTile():removeMonster(monster)
   newTile:addMonster(monster)
   monster.x, monster.y = newTile.x, newTile.y
+end
+
+function MapMethods:addFoodExplosion(x,y,intensity)
+  for _,d in pairs(util.directionDeltas) do
+    local tile = self:getTile(x + d.dx, y + d.dy)
+    if tile and not tile.digged then
+      tile.food = tile.food + intensity
+    end
+  end
+  return candidates
 end
 
 Map.newFromString = function(str)

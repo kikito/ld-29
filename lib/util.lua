@@ -9,4 +9,20 @@ util.get_keys = function(t)
   return keys, len
 end
 
+
+util.directionDeltas = {
+  up     = {dx=0, dy=-1},
+  down   = {dx=0, dy=1},
+  left   = {dx=1, dy=0},
+  right  = {dx=-1,dy=0}
+}
+
+util.directionNames = {'up', 'down', 'left', 'right'}
+
+util.getRandomDirectionName = function()
+  return util.directionNames[math.random(#util.directionNames)]
+end
+
+
+
 return util

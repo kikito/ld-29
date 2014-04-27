@@ -6,14 +6,6 @@ local Tile = require 'tile'
 
 local Monster = class('Monster'):include(Stateful)
 
-local directionDeltas = {
-  up     = {dx=0, dy=-1},
-  down   = {dx=0, dy=1},
-  left   = {dx=1, dy=0},
-  right  = {dx=-1,dy=0}
-}
-local directionNames = {'up', 'down', 'left', 'right'}
-
 function Monster:getColor()
   return 255, 255, 255
 end
@@ -39,8 +31,8 @@ end
 
 function Monster:getAvailableDirections()
   local candidates = {up=1,down=1,left=1,right=1}
-  for i = 1, #directionNames do
-    local directionName = directionNames[i]
+  for i = 1, #util.directionNames do
+    local directionName = util.directionNames[i]
     local tile = self:getNeighborTile(directionName)
     if not (tile and tile:isTraversableBy(self)) then
       candidates[directionName] = nil
@@ -58,12 +50,15 @@ function Monster:chooseRandomAvailableDirection()
 end
 
 function Monster:getNeighborTile(direction)
-  local d = directionDeltas[direction]
+  local d = util.directionDeltas[direction]
   return self.map:getTile(self.x + d.dx, self.y + d.dy)
 end
 
 function Monster:getDirectionDeltas()
-  local d = directionDeltas[self.direction]
+  local d = util.directionDeltas[self.direction]
+  if not d then
+    error(require('inspect')(self, {depth = 1}))
+  end
   return d.dx, d.dy
 end
 
@@ -162,7 +157,7 @@ end
 local Idle = Monster:addState('Idle')
 
 function Idle:enteredState(dt)
-  self.direction       = directionNames[math.random(#directionNames)]
+  self.direction       = util.getRandomDirectionName()
   self.turnAccumulator = 0
 end
 
