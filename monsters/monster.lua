@@ -25,8 +25,6 @@ function Monster:draw()
     local x,y = l + Tile.TILE_SIZE / 2, t + Tile.TILE_SIZE / 2
     love.graphics.circle('fill', x, y, 10)
   end
-
-  self:getTile():drawBorders(255,0,255)
 end
 
 function Monster:getWorldLeftTop()
