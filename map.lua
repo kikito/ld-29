@@ -2,6 +2,7 @@ local class    = require "middleclass"
 local Tile     = require "tile"
 local monsters = require "monsters"
 local util     = require "lib.util"
+local MapFiller = require "map_filler"
 
 local Map = class('Map')
 
@@ -112,9 +113,9 @@ end
 function Map:addFoodExplosion(x,y,intensity, radius)
   radius = radius or 1
   for i=x-radius, x+radius do
-    for j=y-radius, x+radius do
+    for j=y-radius, y+radius do
       local tile = self:getTile(i,j)
-      if tile and not tile.digged then
+      if tile and not tile.digged and math.random() > 0.5 then
         tile.food = tile.food + math.random(intensity)
       end
     end
@@ -166,12 +167,16 @@ end
 function Map.static:newRandom(width, height)
   local map = Map:new(width, height)
 
-  map:digg(10,1)
+  map:getTile(10,1).door = true
   map:digg(10,2)
   map:digg(10,3)
   map:digg(11,3)
   map:digg(12,3)
   map:digg(13,3)
+
+  for i=1, math.random(5,20) do
+    MapFiller:new(map):live()
+  end
 
   return map
 end

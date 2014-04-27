@@ -14,7 +14,8 @@ local activeTile
 local sw, sh = love.graphics.getDimensions()
 
 function love.load()
-  map  = Map:newFromFile('maps/map1.txt')
+  --map  = Map:newFromFile('maps/map1.txt')
+  map  = Map:newRandom(100,100)
   camera = gamera.new(0,0, map:getDimensions())
   camera:setWindow(0,32, sw, sh-64)
   camera:setPosition(0,0)
