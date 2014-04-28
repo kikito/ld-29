@@ -1,4 +1,4 @@
-local class    = require "middleclass"
+local class    = require "lib.middleclass"
 local Tile     = require "tile"
 local monsters = require "monsters"
 local util     = require "lib.util"
